@@ -48,6 +48,10 @@ class VgaTerminal : public Terminal {
             row = 0;
             column = 0;
             color = vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
+            clearScreen();
+        }
+        void clearScreen()
+        {
             for (size_t y = 0; y < VGA_HEIGHT; y++) {
                 for (size_t x = 0; x < VGA_WIDTH; x++) {
                     const size_t index = y * VGA_WIDTH + x;
@@ -129,6 +133,14 @@ class VgaTerminal : public Terminal {
             outb(0x3D5, (uint8_t) (pos & 0xFF));
             outb(0x3D4, 0x0E);
             outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+        }
+        unsigned int getCursorRow()
+        {
+            return row;
+        }
+        unsigned int getCursorColumn()
+        {
+            return column;
         }
 };
 #endif // MYOS_VGA_DEV_H

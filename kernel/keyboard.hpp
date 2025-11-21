@@ -83,7 +83,7 @@ inline IncomingScancode keyboard_Scancode()
  * return that ASCII value.
  * Else, return \0
  */
-char Scancode_to_ascii(Scancode s)
+unsigned char Scancode_to_ascii(Scancode s)
 {
     switch(s) {
         case Scancode::ESC_PRESSED:
@@ -240,12 +240,12 @@ class keyboard_input {
         bool is_ascii:1;
         press_state pressed:1;
         union {
-            char ascii;
+            unsigned char ascii;
             keyboard_special_type special_value;
         };
         keyboard_input(Scancode s)
         {
-            char ascii = Scancode_to_ascii(s);
+            unsigned char ascii = Scancode_to_ascii(s);
             is_ascii = !!ascii;
             pressed = get_press_state(s);
             if(ascii) {
