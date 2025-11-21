@@ -2,13 +2,7 @@
 #define MYOS_VGA_DEV_H
 #include "io.h"
 #include "Terminal.hpp"
-size_t strlen(const char* str)
-{
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
-}
+#include "string.h"
 
 #define VGA_WIDTH   80
 #define VGA_HEIGHT  25

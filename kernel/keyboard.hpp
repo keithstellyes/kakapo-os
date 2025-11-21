@@ -2,15 +2,10 @@
 
 #include <stdint.h>
 #include "io.h"
+#include "string.h"
 inline bool keyboard_ready()
 {
     return inb(0x64) & 1;
-}
-
-
-bool isalpha(char c)
-{
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
 // based on US QWERTY Scancode set 1 - what is emulated in QEMU
