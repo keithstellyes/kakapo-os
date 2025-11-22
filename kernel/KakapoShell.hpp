@@ -33,17 +33,20 @@ class KakapoShell {
         size_t commandBufferIndex = 0;
         bool shiftDown = false;
     public:
+        bool halting = false;
         constexpr KakapoShell(Terminal *terminal)
         {
             this->terminal = terminal;
-            terminal->updateCursorRow(0);
-            terminal->updateCursorColumn(0);
-            terminal->clearScreen();
+            if(terminal->getCursorColumn()) {
+                terminal->incrementCursorRow();
+                terminal->updateCursorColumn(0);
+            }
             terminal->writeString(GREETING);
             prompt();
         }
         void prompt()
         {
+            if(halting) return;
             terminal->updateCursorColumn(0);
             terminal->updateCursorRow(terminal->getCursorRow() + 1);
             terminal->writeString("k) ");
@@ -66,7 +69,6 @@ class KakapoShell {
             terminal->updateCursorColumn(0);
             terminal->updateCursorRow(terminal->getCursorRow() + 1);
             terminal->writeString(s);
-            prompt();
         }
         size_t parseCommandWord(const char *s) {
             size_t len = 0;
@@ -83,14 +85,24 @@ class KakapoShell {
                 s += 4;
                 while(*s && (*s == ' ')) s++;
                 printLine(s);
+                prompt();
+                return;
+            } else if(commandWordLen == sizeof("shutdown") - 1) {
+                halting = true;
+                return;
             }
+            printLine("?");
+            prompt();
         }
         void onAsciiPressed(char c) {
+            if(halting) return;
             char printCharBuff[2];
             switch(c) {
                 case '\b':
                     if(commandBufferIndex > 0) {
                         commandBufferIndex--;
+                    } else if(commandBufferIndex == 0) {
+                        return;
                     }
                     printCharBuff[0] = ' ';
                     printCharBuff[1] = '\0';

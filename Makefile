@@ -8,7 +8,9 @@ cppruntime.o: kernel/cppruntime.cpp
 boot.o: kernel/boot.s
 	i686-elf-as kernel/boot.s -o boot.o
 
-kernel.o: kernel/kernel.cpp kernel/vga.hpp kernel/keyboard.hpp kernel/io.h kernel/power.h kernel/string.h kernel/KakapoShell.hpp
+kernel.o: kernel/kernel.cpp kernel/vga.hpp kernel/keyboard.hpp kernel/io.h \
+	kernel/power.h kernel/string.h kernel/KakapoShell.hpp kernel/rsdp.h
+
 	$(CC) -c kernel/kernel.cpp -o kernel.o
 
 kakapo.bin: cppruntime.o boot.o kernel.o linker.ld

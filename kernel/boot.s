@@ -64,6 +64,10 @@ _start:
 	in assembly as languages such as C cannot function without a stack.
 	*/
 	mov $stack_top, %esp
+    /* OSDev wiki says we need to for multiboot */
+    push %eax
+    push %ebx
+    /* */
 
 	/*
 	This is a good place to initialize crucial processor state before the

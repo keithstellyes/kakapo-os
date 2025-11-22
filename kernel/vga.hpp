@@ -50,6 +50,10 @@ class VgaTerminal : public Terminal {
             color = vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK);
             clearScreen();
         }
+        size_t read (void * ptr, size_t size, size_t count)
+        {
+            return 0;
+        }
         void clearScreen()
         {
             for (size_t y = 0; y < VGA_HEIGHT; y++) {
@@ -99,14 +103,11 @@ class VgaTerminal : public Terminal {
                     row = 0;
             }
         }
-        void write(const char* data, size_t size)
+        size_t write(const void* data, size_t count, size_t size)
         {
-            for (size_t i = 0; i < size; i++)
-                putchar(data[i]);
-        }
-        void writeString(const char *string)
-        {
-            write(string, strlen(string));
+            for (size_t i = 0; i < size * count; i++)
+                putchar(((const char*)data)[i]);
+            return count * size;
         }
         void updateCursorRow(unsigned int row) {
             this->row = row;

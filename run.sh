@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-qemu-system-i386 -kernel kakapo.bin
+qemu-system-i386 -kernel kakapo.bin -m 128M
