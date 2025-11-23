@@ -40,6 +40,20 @@ int strncmp(const char *str1, const char *str2, size_t n)
     }
     return 0;
 }
+
+constexpr int memcmp(const void *leftHandSide, const void *rightHandSide, size_t count)
+{
+    signed char *lhs = (signed char*)leftHandSide;
+    signed char *rhs = (signed char*)rightHandSide;
+    for(unsigned int i = 0; i < count; i++) {
+        if((lhs)[i] == rhs[i]) {
+            continue;
+        }
+        return lhs[i] - rhs[i];
+    }
+    return 0;
+}
+
 // Function to reverse a string
 void reverse(char* str, int length) {
     int start = 0;
