@@ -1,14 +1,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include "malloc.h"
+#include "realloc.h"
 /*
  * A sandbox to make arbitrary modifications to the custom allocator :)
  */
 
 void doMalloc();
 void printRegions();
-
+void doFree();
+void doRealloc();
+bool invariantsPass();
 int main(int argc, char **argv)
 {
     // I thought about having this be a static array to avoid this malloc call,
@@ -25,10 +27,15 @@ int main(int argc, char **argv)
 
     while(1) {
         printRegions();
+        if(!invariantsPass()) {
+            return 1;
+        }
         if(std::cin.eof()) {
             break;
         }
         std::cout << "m <number>: number of bytes to allocate\n";
+        std::cout << "f <index>: free region at index\n";
+        std::cout << "r <index> <number> pointer at region <index> to resize to <number> bytes\n";
         std::cout << "q: quit\n";
         char in;
         std::cin >> in;
@@ -39,6 +46,12 @@ int main(int argc, char **argv)
         switch(in) {
             case 'm':
                 doMalloc();
+                break;
+            case 'f':
+                doFree();
+                break;
+            case 'r':
+                doRealloc();
                 break;
             case 'q':
                 goto exit;
@@ -55,13 +68,9 @@ exit:
 
 void printRegions()
 {
-    if(!memregionSizeIsConsistent()) {
-        std::cerr << "Invariant failed: the tracked sizes of headers plus";
-        std::cerr << " the sizes of the headers themselves have exceeded the";
-        std::cerr << " total memory they were allocated.\n\n";
-    }
     size_t totalRegions = 0;
     memregionheader_t *head = allocator.head;
+    int index = 0;
     while(head) {
         totalRegions++;
         if(head->isReserved) {
@@ -80,7 +89,7 @@ void printRegions()
             }
         }
         std::cout << head->size;
-        std::cout << " @ " << (void*)head;
+        std::cout << " @ [" << index++ << "]" << (void*)(head + 1);
         std::cout << '\n';
         head = nextRegion(head);
     }
@@ -97,4 +106,58 @@ void doMalloc()
     if(region == NULL) {
         std::cout << "failed to allocate!\n";
     }
+}
+
+memregionheader_t *fromIndex(unsigned int regionIndex)
+{
+    memregionheader_t *head = allocator.head;
+    for(unsigned int i = 0; i < regionIndex; i++) {
+        if(head == NULL) {
+            std::cout << "There doesn't seem to be that many memory regions...\n";
+            return NULL;
+        }
+        head = nextRegion(head);
+    }
+    if(head == NULL) {
+        std::cout << "There doesn't seem to be that many memory regions...\n";
+        return NULL;
+    }
+    return head;
+}
+
+void doFree()
+{
+    unsigned int regionIndex;
+    std::cin >> regionIndex;
+    memregionheader_t *head = fromIndex(regionIndex);
+    std::cout << kakapoFree(head+1) << '\n';
+}
+
+void doRealloc()
+{
+    unsigned int regionIndex;
+    std::cin >> regionIndex;
+    memregionheader_t *head = fromIndex(regionIndex);
+    size_t new_size;
+    std::cin >> new_size;
+    std::cout << "Reallocation..." << (kakapoRealloc(head+1, new_size) ? "successful!" : "failed!") << '\n';
+}
+
+bool invariantsPass()
+{
+    bool allPass = true;
+    if(!memregionSizeIsConsistent()) {
+        std::cerr << "Invariant failed: \033[31mthe tracked sizes of headers plus";
+        std::cerr << " the sizes of the headers themselves have exceeded the";
+        std::cerr << " total memory they were allocated.\n";
+        std::cerr << "\033[0m";
+        allPass = false;
+    }
+    if(!noEmptyMemoryRegions()) {
+        std::cerr << "Invariant failed: \033[31mthere shouldn't be any empty memory regions.\n";
+        std::cerr << "\033[0m";
+        allPass = false;
+    }
+
+    return allPass;
 }

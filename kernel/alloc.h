@@ -21,7 +21,6 @@ typedef struct allocator_t {
 
 static allocator_t allocator;
 
-
 memregionheader_t *createRegion(void *data, size_t size)
 {
     if(size < sizeof(memregionheader_t)) {
@@ -77,6 +76,18 @@ bool memregionSizeIsConsistent()
     }
 
     return total + numberOfRegions * sizeof(memregionheader_t) == allocator.size;
+}
+
+bool noEmptyMemoryRegions()
+{
+    memregionheader_t *head = allocator.head;
+    while(head) {
+        if(head->size == 0) {
+            return false;
+        }
+        head = nextRegion(head);
+    }
+    return true;
 }
 #ifdef __cplusplus
 }
