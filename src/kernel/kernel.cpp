@@ -101,6 +101,9 @@ extern "C" void kernel_main(multiboot_info_t *mbd, unsigned int magic)
     qemuvga.writeStringLine("\nWelcome to KakapoOS!");
     qemuvga.update_cursor();
     KakapoShell shell(&qemuvga);
+    char numbuff[12];
+    itoa_hex((uint32_t)&shell - 0x4000, numbuff);
+    qemuvga.writeStringLine(numbuff);
 
     while(!shell.halting) {
         keyboard_input in = next_input();

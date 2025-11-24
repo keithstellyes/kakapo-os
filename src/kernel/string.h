@@ -102,13 +102,29 @@ char* itoa_decimal(int value, char* buffer) {
 
     return buffer;
 }
+char *itoa_hex(unsigned int value, char *buf) {
+    static const char hex[] = "0123456789ABCDEF";
+
+    buf[0] = '0';
+    buf[1] = 'x';
+    buf += 2;
+    // Produce 8 hex digits (32-bit)
+    for (int i = 7; i >= 0; i--) {
+        buf[i] = hex[value & 0xF];
+        value >>= 4;
+    }
+
+    buf[8] = '\0';
+    return buf;
+}
+
 char *itoa(int value, char *str, int base)
 {
     switch(base) {
         case 10:
             return itoa_decimal(value, str);
         case 16:
-            //return itoa_hex(value, str);
+            return itoa_hex(value, str);
         case 2:
         case 8:
         default:
